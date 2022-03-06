@@ -1,0 +1,21 @@
+﻿@page "/match/registrations"
+@inject NavigationManager NavigationManager
+
+<PageTitle>Inschrijvingen</PageTitle>
+
+<h1>Inschrijvingen</h1>
+
+<p>match index</p>
+
+@code {
+    [CascadingParameter]
+    public SharedLayout Layout { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(Layout?.MatchId))
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}

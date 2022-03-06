@@ -1,0 +1,43 @@
+﻿@inherits LayoutComponentBase
+@inject HttpClient _httpClient
+
+<CascadingValue Value="this">
+    <div class="page">
+        <div class="sidebar">
+            @if (MatchId != default)
+            {
+                <MatchNavMenu/>
+            }
+            else
+            {
+                <MainNavMenu/>
+            }
+        </div>
+
+        <main>
+            <div class="top-row px-4">
+                <NavLink href="about">Over</NavLink>
+
+                @if (_build != default)
+                {
+                    <span class="ps-4">Versie: @_build</span>
+                }
+            </div>
+
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    </div>
+</CascadingValue>
+
+@code {
+    private string? _build;
+
+    public string? MatchId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _build = await _httpClient.GetStringAsync("api/BuildNumber");
+    }
+}

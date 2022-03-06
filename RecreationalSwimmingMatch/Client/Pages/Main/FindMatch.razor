@@ -1,0 +1,60 @@
+﻿@page "/find-match"
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Wedstrijd openen</PageTitle>
+
+<h1>Wedstrijd openen</h1>
+<p>
+    blablabla.
+    nog meer bla.
+</p>
+
+<EditForm EditContext="@editContext" OnValidSubmit="@OpenMatch">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <InputText id="matchId" @bind-Value="matchModel.MatchId" />
+    <button class="btn btn-primary" type="submit">Submit</button>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    public SharedLayout Layout { get; set; }
+
+    private MatchModel matchModel = new();
+
+    private EditContext? editContext;
+
+    private ValidationMessageStore? messageStore;
+
+    protected override void OnInitialized()
+    {
+        editContext = new(matchModel);
+        messageStore = new(editContext);
+    }
+
+    private async Task OpenMatch()
+    {
+        var matchExists = await httpClient
+            .GetStringAsync($"/api/matchExists?matchId={matchModel.MatchId}");
+
+        if (matchExists.Equals("0"))
+        {
+            messageStore?.Add(
+                () => matchModel.MatchId,
+                "Deze wedstrijd is niet gevonden.");
+        }
+        else
+        {
+            Layout.MatchId = matchModel.MatchId;
+            NavigationManager.NavigateTo("/match");
+        }
+    }
+
+    internal class MatchModel
+    {
+        [Required]
+        public string? MatchId { get; set; }
+    }
+}

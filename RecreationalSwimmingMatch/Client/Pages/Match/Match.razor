@@ -1,0 +1,21 @@
+﻿@page "/match"
+@inject NavigationManager NavigationManager
+
+<PageTitle>Wedstrijdoverzicht</PageTitle>
+
+<h1>Wedstrijdoverzicht</h1>
+
+<p>match index</p>
+
+@code {
+    [CascadingParameter]
+    public SharedLayout Layout { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(Layout?.MatchId))
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}
