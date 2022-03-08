@@ -1,0 +1,115 @@
+﻿@using Models
+
+<EditForm Model="@model" OnValidSubmit="@ValidSubmitAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Organisator</label>
+                <InputText class="form-control" @bind-Value="model.Organiser" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Zwembad</label>
+                <InputText class="form-control" @bind-Value="model.PoolName" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Adres</label>
+                <InputText class="form-control" @bind-Value="model.PoolAddress" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Datum</label>
+                <InputSelect class="form-control" @bind-Value="model.Date.Day">
+                    @for (var i = 1; i <= 31; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </InputSelect>
+                -
+                <InputSelect class="form-control" @bind-Value="model.Date.Month">
+                    @for (var i = 1; i <= 12; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </InputSelect>
+                -
+                <InputSelect class="form-control" @bind-Value="model.Date.Year">
+                    @for (var i = model.Date.Year < model.Date.Year - 1 ? model.Date.Year : model.Date.Year - 1; i <= DateTime.Now.Year + 1; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Inzwemmen</label>
+                <InputSelect class="form-control" @bind-Value="model.Warmup.Hour">
+                    @for (var i = 0; i <= 23; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </InputSelect>
+                :
+                <InputSelect class="form-control" @bind-Value="model.Warmup.Minute">
+                    @for (var i = 0; i <= 59; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Aanvang wedtrijd</label>
+                <InputSelect class="form-control" @bind-Value="model.Start.Hour">
+                    @for (var i = 0; i <= 23; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </InputSelect>
+                :
+                <InputSelect class="form-control" @bind-Value="model.Start.Minute">
+                    @for (var i = 0; i <= 59; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </InputSelect>
+            </div>
+            
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private Match model = new Match()
+    {
+        Date = new Date()
+        {
+            Day = DateTime.Now.Day,
+            Month = DateTime.Now.Month,
+            Year = DateTime.Now.Year
+        },
+        Warmup = new Time()
+        {
+            Hour = 15,
+            Minute = 00
+        },
+        Start = new Time()
+        {
+            Hour = 15,
+            Minute = 30
+        }
+    };
+
+    [Parameter]
+    public EventCallback<Match> OnValidSubmitCallback { get; set; }
+
+    private async Task ValidSubmitAsync()
+    {
+        await OnValidSubmitCallback.InvokeAsync(model);
+    }
+}

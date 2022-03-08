@@ -11,7 +11,7 @@
     [CascadingParameter]
     public SharedLayout Layout { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrEmpty(Layout?.MatchId))
         {

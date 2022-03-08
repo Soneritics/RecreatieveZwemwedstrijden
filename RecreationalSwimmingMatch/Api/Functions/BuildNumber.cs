@@ -3,8 +3,8 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -14,7 +14,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
-namespace Api;
+namespace Api.Functions;
 
 public class BuildNumber
 {
@@ -56,10 +56,4 @@ public class BuildNumber
         
         return new OkObjectResult(responseMessage);
     }
-}
-
-internal class BuildNumberApiResponse
-{
-    [JsonPropertyName("tag_name")]
-    public string? TagName { get; set; }
 }

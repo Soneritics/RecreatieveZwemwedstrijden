@@ -1,4 +1,5 @@
 ﻿@page "/match"
+@inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
 <PageTitle>Wedstrijdoverzicht</PageTitle>
@@ -7,15 +8,27 @@
 
 <p>match index</p>
 
+<p>Wedstrijd ID: @Layout.MatchId</p>
+
 @code {
     [CascadingParameter]
     public SharedLayout Layout { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrEmpty(Layout?.MatchId))
         {
             NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            var matchExists = await httpClient
+                .GetStringAsync($"/api/matchExists?matchId={Layout.MatchId}");
+
+            if (matchExists.Equals("0"))
+            {
+                NavigationManager.NavigateTo("/");
+            }
         }
     }
 }

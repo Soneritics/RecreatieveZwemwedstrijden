@@ -11,10 +11,16 @@
     nog meer bla.
 </p>
 
-<EditForm EditContext="@editContext" OnValidSubmit="@OpenMatch">
+<EditForm Model="@_matchIdModel" OnValidSubmit="@OpenMatch">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <InputText id="matchId" @bind-Value="matchModel.MatchId" />
+    
+    @if (_errorMessageVisible)
+    {
+        <div class="validation-message">Deze wedstrijd is niet gevonden.</div>
+    }
+
+    <InputText id="matchId" @bind-Value="_matchIdModel.MatchId" />
     <button class="btn btn-primary" type="submit">Submit</button>
 </EditForm>
 
@@ -22,37 +28,28 @@
     [CascadingParameter]
     public SharedLayout Layout { get; set; }
 
-    private MatchModel matchModel = new();
+    private MatchIdModel _matchIdModel = new();
 
-    private EditContext? editContext;
-
-    private ValidationMessageStore? messageStore;
-
-    protected override void OnInitialized()
-    {
-        editContext = new(matchModel);
-        messageStore = new(editContext);
-    }
+    private bool _errorMessageVisible { get; set; }
 
     private async Task OpenMatch()
     {
         var matchExists = await httpClient
-            .GetStringAsync($"/api/matchExists?matchId={matchModel.MatchId}");
+            .GetStringAsync($"/api/matchExists?matchId={_matchIdModel.MatchId}");
 
         if (matchExists.Equals("0"))
         {
-            messageStore?.Add(
-                () => matchModel.MatchId,
-                "Deze wedstrijd is niet gevonden.");
+            _errorMessageVisible = true;
         }
         else
         {
-            Layout.MatchId = matchModel.MatchId;
+            _errorMessageVisible = false;
+            Layout.MatchId = _matchIdModel.MatchId;
             NavigationManager.NavigateTo("/match");
         }
     }
 
-    internal class MatchModel
+    internal class MatchIdModel
     {
         [Required]
         public string? MatchId { get; set; }

@@ -1,6 +1,6 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Api.Repositories;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http;
 
 [assembly: FunctionsStartup(typeof(Api.Startup))]
 
@@ -11,7 +11,6 @@ internal class Startup : FunctionsStartup
     public override void Configure(IFunctionsHostBuilder builder)
     {
         builder.Services.AddHttpClient();
-
-        //builder.Services.AddSingleton<ILoggerProvider, MyLoggerProvider>();
+        builder.Services.AddSingleton<IRepository, InMemoryRepository>();
     }
 }
