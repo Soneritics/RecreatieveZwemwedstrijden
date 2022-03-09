@@ -36,6 +36,7 @@ public class UpdateMatch
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         var match = JsonConvert.DeserializeObject<Match>(await req.ReadAsStringAsync());
+        match.CleanPrograms();
         await _repository.UpdateAsync(match.Id, match);
 
         return new JsonResult(match);

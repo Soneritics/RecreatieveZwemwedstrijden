@@ -39,6 +39,7 @@ public class AddMatch
         var match = JsonConvert.DeserializeObject<Match>(await req.ReadAsStringAsync());
 
         match.Id = Guid.NewGuid().ToString();
+        match.CleanPrograms();
         await _repository.InsertAsync(match.Id, match);
 
         return new JsonResult(match);

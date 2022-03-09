@@ -26,19 +26,27 @@
                 <div class="col">
                     @if (CanEdit)
                     {
-
+                        <InputText class="form-control" @bind-Value="Model.PoolName"/>
                     }
                     else
                     {
-                        <span @Model.></span>
+                        <span>@Model.PoolName</span>
                     }
-                    <InputText class="form-control" @bind-Value="Model.PoolName"/>
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-4"><label class="col-form-label">Adres</label></div>
-                <div class="col"><InputText class="form-control" @bind-Value="Model.PoolAddress" /></div>
+                <div class="col">
+                    @if (CanEdit)
+                    {
+                        <InputText class="form-control" @bind-Value="Model.PoolAddress"/>
+                    }
+                    else
+                    {
+                        <span>@Model.PoolAddress</span>
+                    }
+                </div>
             </div>
 
             <div class="row mb-3">
@@ -145,10 +153,120 @@
                     }
                 </div>
             </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4"><label class="col-form-label">Pauze na programma #:</label></div>
+                <div class="col">
+                    @if (CanEdit)
+                    {
+                        <div class="row">
+                            <div class="col-auto">
+                                <InputSelect class="form-control" @bind-Value="Model.BreakAfterProgram">
+                                    <option value="0">Geen pauze</option>
+                                    
+                                    @if (Model.Programs?.Any() == true)
+                                    {
+                                        @for (var i = 1; i <= Model.Programs.Count(p => !string.IsNullOrEmpty(p.Stroke)); i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <span>@(Model.BreakAfterProgram == 0 ? "Geen pauze" : Model.BreakAfterProgram)</span>
+                    }
+                </div>
+            </div>
             
             @if (ShowProgramData)
             {
-                <div>Program data here</div>
+                if (CanEdit)
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Afstand</th>
+                                <th>Slag</th>
+                                <th>Opmerkingen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var list = Model.Programs?.OrderBy(p => p.Order).ToList() ?? new List<Program>();
+                                var listCount = Math.Max(10, list.Count(p => !string.IsNullOrEmpty(p.Stroke)) + 1);
+
+                                while (list.Count < listCount)
+                                {
+                                    list.Add(new Program()
+                                    {
+                                        Id = Guid.NewGuid().ToString(),
+                                        Distance = 25
+                                    });
+                                }
+
+                                Model.Programs = list;
+                            }
+
+                            @foreach (var program in Model.Programs)
+                            {
+                                <tr>
+                                    <td>
+                                        <InputSelect class="form-control" @bind-Value="program.Distance">
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="50">100</option>
+                                            <option value="50">200</option>
+                                        </InputSelect>
+                                    </td>
+                                    <td>
+                                        <InputSelect class="form-control" @bind-Value="program.Stroke">
+                                            <option value=""></option>
+                                            <option value="Estafette">Estafette</option>
+                                            <option value="Rugcrawl">Rugcrawl</option>
+                                            <option value="Schoolslag">Schoolslag</option>
+                                            <option value="Vlinderslag">Vlinderslag</option>
+                                            <option value="Vrije slag">Vrije slag</option>
+                                            <option value="Wisselslag">Wisselslag</option>
+                                        </InputSelect>
+                                    </td>
+                                    <td><InputText class="form-control" @bind-Value="program.Comments" /></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else if (Model.Programs?.Any() != true)
+                {
+                    <div><em>Er zijn nog geen programma's ingesteld.</em></div>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Afstand</th>
+                                <th>Slag</th>
+                                <th>Opmerkingen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var program in Model.Programs)
+                        {
+                            <tr>
+                                <td>@program.Order</td>
+                                <td>@program.Distance</td>
+                                <td>@program.Stroke</td>
+                                <td>@program.Comments</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                }
             }
             
             @if (CanEdit)

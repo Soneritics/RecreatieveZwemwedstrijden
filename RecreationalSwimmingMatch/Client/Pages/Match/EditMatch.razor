@@ -1,20 +1,14 @@
-﻿@page "/match"
+﻿@page "/match/edit"
 @inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
-<PageTitle>Wedstrijdoverzicht</PageTitle>
+<PageTitle>Wedstrijd aanpassen</PageTitle>
 
-<h1>Wedstrijdoverzicht</h1>
-
-<p>match index</p>
-
-<p>Wedstrijd ID: @Layout.MatchId</p>
+<h1>Wedstrijdgegevens aanpassen</h1>
 
 @if (_model != default)
 {
-    <EditMatchForm CanEdit="false" Model="@_model" ShowProgramData="true"></EditMatchForm>
-
-    <p><a href="/match/edit">Wedstrijdgegevens aanpassen</a></p>
+    <EditMatchForm Model="@_model" ShowProgramData="true" OnValidSubmitCallback="@UpdateMatchAsync"></EditMatchForm>
 }
 else
 {
@@ -45,5 +39,12 @@ else
         {
             _model = model;
         }
+    }
+
+    private async Task UpdateMatchAsync(Models.Match model)
+    {
+        model.Id = _model.Id;
+        await httpClient.PostAsJsonAsync("/api/UpdateMatch", model);
+        NavigationManager.NavigateTo("/match");
     }
 }

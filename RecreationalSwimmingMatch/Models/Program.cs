@@ -12,7 +12,6 @@ public class Program
     [Required]
     public int Distance { get; set; }
 
-    [Required]
     public string Stroke { get; set; }
 
     public string Comments { get; set; }

@@ -24,5 +24,27 @@ public class Match
     [Required]
     public string PoolAddress { get; set; }
 
+    public int BreakAfterProgram { get; set; }
+
     public IEnumerable<Program> Programs { get; set; }
+
+    public void CleanPrograms()
+    {
+        if (Programs?.Any() == true)
+        {
+            var programList = new List<Program>();
+            var order = 0;
+
+            foreach (var program in Programs.OrderBy(p => p.Order))
+            {
+                if (!string.IsNullOrEmpty(program.Stroke))
+                {
+                    program.Order = ++order;
+                    programList.Add(program);
+                }
+            }
+
+            Programs = programList;
+        }
+    }
 }

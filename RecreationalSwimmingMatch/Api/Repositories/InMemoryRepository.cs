@@ -28,7 +28,7 @@ public class InMemoryRepository : IRepository
 
     public async Task UpdateAsync<T>(string id, T entity)
     {
-        if (await ExistsAsync<T>(id))
+        if (!await ExistsAsync<T>(id))
             throw new Exception("Document does not exist");
 
         _entities[id] = entity;
