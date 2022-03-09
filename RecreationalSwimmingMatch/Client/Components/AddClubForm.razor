@@ -1,0 +1,30 @@
+﻿@using Models
+
+<EditForm Model="@Model" OnValidSubmit="@ValidSubmitAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="row mb-3">
+                <div class="col-md-4"><label class="col-form-label">Vereniging</label></div>
+                <div class="col"><InputText class="form-control" @bind-Value="Model.Club" /></div>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Toevoegen</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public EventCallback<Registrations> OnValidSubmitCallback { get; set; }
+
+    [Parameter]
+    public Registrations Model { get; set; } = new();
+
+    private async Task ValidSubmitAsync()
+    {
+        await OnValidSubmitCallback.InvokeAsync(Model);
+    }
+}

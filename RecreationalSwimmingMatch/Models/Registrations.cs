@@ -6,6 +6,8 @@ public class Registrations
 {
     public string Id { get; set; }
 
+    public string MatchId { get; set; }
+
     [Required]
     public string Club { get; set; }
 

@@ -9,39 +9,33 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Models;
 
-namespace Api.Functions;
+namespace Api.Functions.Registrations;
 
-public class MatchExists
+public class GetMatchRegistrations
 {
-    private readonly ILogger<MatchExists> _logger;
+    private readonly ILogger<GetMatchRegistrations> _logger;
     private readonly IRepository _repository;
 
-    public MatchExists(ILogger<MatchExists> log, IRepository repository)
+    public GetMatchRegistrations(ILogger<GetMatchRegistrations> log, IRepository repository)
     {
         _logger = log;
         _repository = repository;
     }
 
-    [FunctionName(nameof(MatchExists))]
+    [FunctionName(nameof(GetMatchRegistrations))]
     [OpenApiOperation(operationId: "Run", tags: new[] { "matchId" })]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
     [OpenApiParameter(name: "matchId", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **matchId** parameter")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response. 1 = true, 0 = false.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(global::Models.Match), Description = "An array of Registrations for the specified match (id).")]
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req)
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         string matchId = req.Query["matchId"];
-        var result = false;
+        var result = await _repository.GetListAsync<global::Models.Registrations>(r => r.MatchId.Equals(matchId));
 
-        if (!string.IsNullOrEmpty(matchId))
-        {
-            result = await _repository.ExistsAsync<Match>(matchId);
-        }
-
-        return new OkObjectResult(result ? "1" : "0");
+        return new JsonResult(result);
     }
 }

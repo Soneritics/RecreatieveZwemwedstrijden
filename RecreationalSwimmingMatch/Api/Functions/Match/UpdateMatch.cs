@@ -9,34 +9,35 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Models;
+using Newtonsoft.Json;
 
-namespace Api.Functions;
+namespace Api.Functions.Match;
 
-public class GetMatchDetails
+public class UpdateMatch
 {
-    private readonly ILogger<GetMatchDetails> _logger;
+    private readonly ILogger<UpdateMatch> _logger;
     private readonly IRepository _repository;
 
-    public GetMatchDetails(ILogger<GetMatchDetails> log, IRepository repository)
+    public UpdateMatch(ILogger<UpdateMatch> log, IRepository repository)
     {
         _logger = log;
         _repository = repository;
     }
 
-    [FunctionName(nameof(GetMatchDetails))]
+    [FunctionName(nameof(UpdateMatch))]
     [OpenApiOperation(operationId: "Run", tags: new[] { "matchId" })]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
     [OpenApiParameter(name: "matchId", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **matchId** parameter")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Match), Description = "The Match with the specified id.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(global::Models.Match), Description = "The Match with the specified id.")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req)
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-        string matchId = req.Query["matchId"];
-        var result = await _repository.GetAsync<Match>(matchId);
+        var match = JsonConvert.DeserializeObject<global::Models.Match>(await req.ReadAsStringAsync());
+        match.CleanPrograms();
+        await _repository.UpdateAsync(match.Id, match);
 
-        return new JsonResult(result);
+        return new JsonResult(match);
     }
 }

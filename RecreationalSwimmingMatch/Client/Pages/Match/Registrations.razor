@@ -1,21 +1,125 @@
 ﻿@page "/match/registrations"
+@inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
 <PageTitle>Inschrijvingen</PageTitle>
 
 <h1>Inschrijvingen</h1>
 
-<p>match index</p>
+@if (_registrations == default)
+{
+    <div><em>Bezig met laden van de registraties..</em></div>
+}
+else if (!_registrations.Any())
+{
+    <div><em>Er zijn nog geen clubs aangemeld voor deze wedstrijd.</em></div>
+}
+else
+{
+    <div class="row">
+        @foreach (var registrations in _registrations)
+        {
+            <div class="col-md-6">
+                <h3>@registrations.Club</h3>
+                
+                @if (registrations.RegistrationList?.Any() != true)
+                {
+                    <p><em>Er zijn nog geen inschrijvingen gedaan bij @registrations.Club.</em></p>
+                }
+                else if (_match != default)
+                {
+                    var programCount = _match.Programs?.Count() ?? 0;
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                @if (programCount > 0)
+                                {
+                                    <th colspan="@programCount">Programma</th>
+                                }
+                            </tr>
+                            <tr>
+                                <th rowspan="2">Voornaam</th>
+                                <th rowspan="2">Achternaam</th>
+                                <th rowspan="2">Geboortejaar</th>
+                                @if (programCount > 0)
+                                {
+                                    @for (var i = 1; i <= programCount; i++)
+                                    {
+                                        <th>@i</th>
+                                    }
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var registration in registrations.RegistrationList)
+                            {
+                                <tr>
+                                    <td>@registration.Firstname</td>
+                                    <td>@registration.Lastname</td>
+                                    <td>@registration.YearOfBirth</td>
+                                    @if (programCount > 0)
+                                    {
+                                        @foreach (var program in _match.Programs.OrderBy(p => p.Order))
+                                        {
+                                            var value = registration.ProgramIds?.Contains(program.Id) == true ? "X" : "";
+                                            <td>@value</td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                
+                <p class="oi-align-right"><a href="/match/registrations-club/@registrations.Id" class="btn btn-primary">Inschrijvingen beheren &raquo;</a></p>
+            </div>
+        }
+    </div>
+}
+
+@if (_addClubFormVisible)
+{
+    <AddClubForm OnValidSubmitCallback="@AddRegistrationsAsync"></AddClubForm>
+}
+else
+{
+    <p>Voeg een vereniging toe</p>
+    <p><button class="btn btn-primary" @onclick="() => { _addClubFormVisible=true; }">Vereniging toevoegen &raquo;</button></p>
+}
 
 @code {
     [CascadingParameter]
     public SharedLayout Layout { get; set; }
 
+    private bool _addClubFormVisible;
+
+    private IEnumerable<Models.Registrations> _registrations;
+
+    private Models.Match? _match;
+
     protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrEmpty(Layout?.MatchId))
+        var redirect =
+            string.IsNullOrEmpty(Layout?.MatchId) ||
+            (await httpClient.GetStringAsync($"/api/matchExists?matchId={Layout.MatchId}")).Equals("0");
+
+        if (redirect)
         {
             NavigationManager.NavigateTo("/");
+            return;
         }
+
+        _match = await httpClient.GetFromJsonAsync<Models.Match>($"/api/GetMatchDetails?matchId={Layout.MatchId}");
+        _registrations = await httpClient.GetFromJsonAsync<IEnumerable<Models.Registrations>>($"/api/GetMatchRegistrations?matchId={Layout.MatchId}")
+            ?? new List<Models.Registrations>();
+    }
+
+    private async Task AddRegistrationsAsync(Models.Registrations model)
+    {
+        model.MatchId = Layout.MatchId;
+        var response = await httpClient.PostAsJsonAsync($"/api/AddRegistrations", model);
+        var registrations = await response.Content.ReadFromJsonAsync<Models.Registrations>();
+        NavigationManager.NavigateTo($"/match/registrations-club/{registrations.Id}");
     }
 }

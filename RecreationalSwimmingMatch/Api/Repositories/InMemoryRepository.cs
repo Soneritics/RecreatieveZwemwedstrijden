@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Api.Repositories;
@@ -37,5 +38,14 @@ public class InMemoryRepository : IRepository
     public async Task<T> GetAsync<T>(string id)
     {
         return (T)_entities[id];
+    }
+
+    public async Task<List<T>> GetListAsync<T>(Func<T, bool> predicate)
+    {
+        return _entities
+            .Values
+            .OfType<T>()
+            .Where(predicate)
+            .ToList();
     }
 }

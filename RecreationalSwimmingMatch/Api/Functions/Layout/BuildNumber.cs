@@ -14,7 +14,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
-namespace Api.Functions;
+namespace Api.Functions.Layout;
 
 public class BuildNumber
 {

@@ -1,4 +1,3 @@
-using System;
 using System.Net;
 using System.Threading.Tasks;
 using Api.Repositories;
@@ -10,38 +9,33 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Models;
-using Newtonsoft.Json;
 
-namespace Api.Functions;
+namespace Api.Functions.Match;
 
-public class AddMatch
+public class GetMatchDetails
 {
-    private readonly ILogger<AddMatch> _logger;
+    private readonly ILogger<GetMatchDetails> _logger;
     private readonly IRepository _repository;
 
-    public AddMatch(ILogger<AddMatch> log, IRepository repository)
+    public GetMatchDetails(ILogger<GetMatchDetails> log, IRepository repository)
     {
         _logger = log;
         _repository = repository;
     }
 
-    [FunctionName(nameof(AddMatch))]
+    [FunctionName(nameof(GetMatchDetails))]
     [OpenApiOperation(operationId: "Run", tags: new[] { "matchId" })]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
     [OpenApiParameter(name: "matchId", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **matchId** parameter")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Match), Description = "The Match with the specified id.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(global::Models.Match), Description = "The Match with the specified id.")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req)
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-        var match = JsonConvert.DeserializeObject<Match>(await req.ReadAsStringAsync());
+        string matchId = req.Query["matchId"];
+        var result = await _repository.GetAsync<global::Models.Match>(matchId);
 
-        match.Id = Guid.NewGuid().ToString();
-        match.CleanPrograms();
-        await _repository.InsertAsync(match.Id, match);
-
-        return new JsonResult(match);
+        return new JsonResult(result);
     }
 }
