@@ -10,25 +10,38 @@
 
 <p>Wedstrijd ID: @Layout.MatchId</p>
 
+@if (_model != default)
+{
+    <EditMatchForm CanEdit="false" Model="@_model" ShowProgramData="true"></EditMatchForm>
+}
+else
+{
+    <div>Bezig met laden..</div>
+}
+
 @code {
     [CascadingParameter]
     public SharedLayout Layout { get; set; }
 
+    private Models.Match? _model;
+
     protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrEmpty(Layout?.MatchId))
+        var redirect =
+            string.IsNullOrEmpty(Layout?.MatchId) ||
+            (await httpClient.GetStringAsync($"/api/matchExists?matchId={Layout.MatchId}")).Equals("0");
+
+        if (redirect)
         {
             NavigationManager.NavigateTo("/");
+            return;
         }
-        else
-        {
-            var matchExists = await httpClient
-                .GetStringAsync($"/api/matchExists?matchId={Layout.MatchId}");
 
-            if (matchExists.Equals("0"))
-            {
-                NavigationManager.NavigateTo("/");
-            }
+        var model = await httpClient.GetFromJsonAsync<Models.Match>($"/api/GetMatchDetails?matchId={Layout.MatchId}");
+
+        if (model != default)
+        {
+            _model = model;
         }
     }
 }

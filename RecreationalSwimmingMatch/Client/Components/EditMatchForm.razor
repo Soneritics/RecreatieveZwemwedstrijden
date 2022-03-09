@@ -1,0 +1,197 @@
+﻿@using Models
+
+<EditForm Model="@Model" OnValidSubmit="@ValidSubmitAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="row mb-3">
+                <div class="col-md-4"><label class="col-form-label">Organisator</label></div>
+                
+                <div class="col">
+                    @if (CanEdit)
+                    {
+                        <InputText class="form-control" @bind-Value="Model.Organiser" />
+                    }
+                    else
+                    {
+                        <span>@Model.Organiser</span>
+                    }
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4"><label class="col-form-label">Zwembad</label></div>
+                <div class="col">
+                    @if (CanEdit)
+                    {
+
+                    }
+                    else
+                    {
+                        <span @Model.></span>
+                    }
+                    <InputText class="form-control" @bind-Value="Model.PoolName"/>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4"><label class="col-form-label">Adres</label></div>
+                <div class="col"><InputText class="form-control" @bind-Value="Model.PoolAddress" /></div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4"><label class="col-form-label">Datum</label></div>
+                <div class="col">
+                    @if (CanEdit)
+                    {
+                        <div class="row">
+                            <div class="col-auto">
+                                <InputSelect class="form-control" @bind-Value="Model.Date.Day">
+                                    @for (var i = 1; i <= 31; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-auto">-</div>
+                            <div class="col-auto">
+                                <InputSelect class="form-control" @bind-Value="Model.Date.Month">
+                                    @for (var i = 1; i <= 12; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-auto">-</div>
+                            <div class="col-auto">
+                                <InputSelect class="form-control" @bind-Value="Model.Date.Year">
+                                    @for (var i = Model.Date.Year < Model.Date.Year - 1 ? Model.Date.Year : Model.Date.Year - 1; i <= DateTime.Now.Year + 1; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <span>@Model.Date.Day</span><span>-</span><span>@Model.Date.Month</span><span>-</span><span>@Model.Date.Year</span>
+                    }
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4"><label class="col-form-label">Inzwemmen</label></div>
+                <div class="col">
+                    @if (CanEdit)
+                    {
+                        <div class="row">
+                            <div class="col-auto">
+                                <InputSelect class="form-control" @bind-Value="Model.Warmup.Hour">
+                                    @for (var i = 0; i <= 23; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-auto">:</div>
+                            <div class="col-auto">
+                                <InputSelect class="form-control" @bind-Value="Model.Warmup.Minute">
+                                    @for (var i = 0; i <= 59; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <span>@Model.Warmup.Hour</span><span>:</span><span>@Model.Warmup.Minute</span>
+                    }
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4"><label class="col-form-label">Aanvang wedstrijd</label></div>
+                <div class="col">
+                    @if (CanEdit)
+                    {
+                        <div class="row">
+                            <div class="col-auto">
+                                <InputSelect class="form-control" @bind-Value="Model.Start.Hour">
+                                    @for (var i = 0; i <= 23; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-auto">:</div>
+                            <div class="col-auto">
+                                <InputSelect class="form-control" @bind-Value="Model.Start.Minute">
+                                    @for (var i = 0; i <= 59; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <span>@Model.Start.Hour</span><span>:</span><span>@Model.Start.Minute</span>
+                    }
+                </div>
+            </div>
+            
+            @if (ShowProgramData)
+            {
+                <div>Program data here</div>
+            }
+            
+            @if (CanEdit)
+            {
+                <button class="btn btn-primary" type="submit">Submit</button>
+            }
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public bool CanEdit { get; set; } = true;
+
+    [Parameter]
+    public bool ShowProgramData { get; set; }
+    
+    [Parameter]
+    public EventCallback<Match> OnValidSubmitCallback { get; set; }
+
+    [Parameter]
+    public Match Model { get; set; } = new()
+    {
+        Date = new Date()
+        {
+            Day = DateTime.Now.Day,
+            Month = DateTime.Now.Month,
+            Year = DateTime.Now.Year
+        },
+        Warmup = new Time()
+        {
+            Hour = 15,
+            Minute = 00
+        },
+        Start = new Time()
+        {
+            Hour = 15,
+            Minute = 30
+        }
+    };
+
+    private async Task ValidSubmitAsync()
+    {
+        await OnValidSubmitCallback.InvokeAsync(Model);
+    }
+}
