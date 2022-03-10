@@ -1,0 +1,41 @@
+﻿@page "/match/registrations-club/{RegistrationId}"
+@inject HttpClient httpClient
+@inject NavigationManager NavigationManager
+
+<PageTitle>Inschrijvingen</PageTitle>
+
+<h1>Inschrijvingen</h1>
+
+@if (_registrations == default)
+{
+    <div><em>Bezig met laden van de registraties..</em></div>
+}
+else
+{
+    <div>Hier komt iets</div>
+}
+
+@code {
+    [CascadingParameter]
+    public SharedLayout Layout { get; set; }
+
+    [Parameter]
+    public string RegistrationId { get; set; }
+
+    private Models.Registrations? _registrations;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var redirect =
+            string.IsNullOrEmpty(Layout?.MatchId) ||
+            (await httpClient.GetStringAsync($"/api/matchExists?matchId={Layout.MatchId}")).Equals("0");
+
+        if (redirect)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        _registrations = await httpClient.GetFromJsonAsync<Models.Registrations>($"/api/GetRegistrations/{RegistrationId}");
+    }
+}
