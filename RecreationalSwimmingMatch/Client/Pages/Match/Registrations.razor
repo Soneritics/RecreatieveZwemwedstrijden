@@ -17,7 +17,7 @@ else if (!_registrations.Any())
 else
 {
     <div class="row">
-        @foreach (var registrations in _registrations)
+        @foreach (var registrations in _registrations.OrderBy(r => r.Club))
         {
             <div class="col-md-6">
                 <h3>@registrations.Club</h3>
@@ -52,7 +52,7 @@ else
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var registration in registrations.RegistrationList)
+                            @foreach (var registration in registrations.RegistrationList.OrderBy(r => r.Firstname))
                             {
                                 <tr>
                                     <td>@registration.Firstname</td>
@@ -72,7 +72,7 @@ else
                     </table>
                 }
                 
-                <p class="oi-align-right"><a href="/match/registrations-club/@registrations.Id" class="btn btn-primary">Inschrijvingen beheren &raquo;</a></p>
+                <p><a href="/match/registrations-club/@registrations.Id" class="btn btn-primary">Inschrijvingen beheren &raquo;</a></p>
             </div>
         }
     </div>
@@ -111,15 +111,22 @@ else
         }
 
         _match = await httpClient.GetFromJsonAsync<Models.Match>($"/api/GetMatchDetails?matchId={Layout.MatchId}");
-        _registrations = await httpClient.GetFromJsonAsync<IEnumerable<Models.Registrations>>($"/api/GetMatchRegistrations?matchId={Layout.MatchId}")
-            ?? new List<Models.Registrations>();
+        await LoadRegistrationsAsync();
     }
 
     private async Task AddRegistrationsAsync(Models.Registrations model)
     {
         model.MatchId = Layout.MatchId;
-        var response = await httpClient.PostAsJsonAsync($"/api/AddRegistrations", model);
-        var registrations = await response.Content.ReadFromJsonAsync<Models.Registrations>();
-        NavigationManager.NavigateTo($"/match/registrations-club/{registrations.Id}");
+        await httpClient.PostAsJsonAsync($"/api/AddRegistrations", model);
+
+        _addClubFormVisible = false;
+        await LoadRegistrationsAsync();
+    }
+
+    private async Task LoadRegistrationsAsync()
+    {
+        _registrations = await httpClient
+            .GetFromJsonAsync<IEnumerable<Models.Registrations>>($"/api/GetMatchRegistrations?matchId={Layout.MatchId}")
+            ?? new List<Models.Registrations>();
     }
 }
