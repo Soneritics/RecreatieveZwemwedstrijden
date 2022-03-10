@@ -4,15 +4,105 @@
 
 <PageTitle>Inschrijvingen</PageTitle>
 
-<h1>Inschrijvingen</h1>
+<h1>
+    Inschrijvingen
+    @if (_registrations != default)
+    {
+        <span>- @_registrations.Club</span>
+    }
+</h1>
 
-@if (_registrations == default)
+@if (_registrations == default || _match == default)
 {
-    <div><em>Bezig met laden van de registraties..</em></div>
+    <div><em>Bezig met laden van de inschrijvingen..</em></div>
 }
 else
 {
-    <div>Hier komt iets</div>
+    <EditForm Model="@_registrations" OnValidSubmit="@ValidSubmitAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        @{
+            var programCount = _match.Programs?.Count() ?? 0;
+        }
+        <table class="table">
+            <thead>
+                    @if (programCount > 0)
+                    {
+                        <tr>
+                            <th rowspan="2">Voornaam</th>
+                            <th rowspan="2">Achternaam</th>
+                            <th rowspan="2">Geboortedatum</th>
+                            <th colspan="@programCount">Programma</th>
+                        </tr>
+                        <tr>
+                            @for (var i = 1; i <= programCount; i++)
+                            {
+                                <th>@i</th>
+                            }
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <th>Voornaam</th>
+                            <th>Achternaam</th>
+                            <th>Geboortedatum</th>
+                        </tr>
+                    }
+            </thead>
+            <tbody>
+                @{
+                    var list = _registrations.RegistrationList?.ToList() ?? new List<Models.Registration>();
+                    var listCount = Math.Max(5, list.Count(l => !string.IsNullOrEmpty(l.Firstname) && !string.IsNullOrEmpty(l.Lastname)) + 1);
+
+                    while (list.Count < listCount)
+                    {
+                        list.Add(new Models.Registration()
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            DateOfBirth = DateTime.Now.AddYears(-10)
+                        });
+                    }
+
+                    _registrations.RegistrationList = list;
+                }
+
+                @foreach (var registration in _registrations.RegistrationList)
+                {
+                    <tr>
+                        <td><InputText class="form-control" @bind-Value="registration.Firstname"/></td>
+                        <td><InputText class="form-control" @bind-Value="registration.Lastname"/></td>
+                        <td><InputDate class="form-control" @bind-Value="registration.DateOfBirth"/></td>
+                        @if (programCount > 0)
+                        {
+                            if (registration.ProgramIds == default)
+                            {
+                                registration.ProgramIds = new List<string>();
+                            }
+
+                            @foreach (var program in _match.Programs.OrderBy(p => p.Order))
+                            {
+                                if (!_checkboxSelections.Any(r => r.ProgramId.Equals(program.Id) && r.RegistrationId.Equals(registration.Id)))
+                                {
+                                    _checkboxSelections.Add(new CheckboxSelection()
+                                    {
+                                        ProgramId = program.Id,
+                                        RegistrationId = registration.Id
+                                    });
+                                }
+
+                                var reg = _checkboxSelections.First(r => r.ProgramId.Equals(program.Id) && r.RegistrationId.Equals(registration.Id));
+                                <td><InputCheckbox class="form-check-input" @bind-Value="reg.IsSelected" /></td>
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <p><button class="btn btn-primary" type="submit">Opslaan</button></p>
+    </EditForm>
 }
 
 @code {
@@ -22,8 +112,12 @@ else
     [Parameter]
     public string RegistrationId { get; set; }
 
+    private Models.Match? _match;
+
     private Models.Registrations? _registrations;
-    
+
+    private List<CheckboxSelection> _checkboxSelections;
+
     protected override async Task OnInitializedAsync()
     {
         var redirect =
@@ -36,6 +130,50 @@ else
             return;
         }
 
-        _registrations = await httpClient.GetFromJsonAsync<Models.Registrations>($"/api/GetRegistrations/{RegistrationId}");
+        _match = await httpClient.GetFromJsonAsync<Models.Match>($"/api/GetMatchDetails?matchId={Layout.MatchId}");
+        _registrations = await httpClient.GetFromJsonAsync<Models.Registrations>($"/api/GetRegistrations?registrationsId={RegistrationId}");
+
+        _checkboxSelections = new List<CheckboxSelection>();
+        if (_registrations.RegistrationList?.Any() == true)
+        {
+            foreach (var registration in _registrations.RegistrationList)
+            {
+                if (registration.ProgramIds?.Any() == true)
+                {
+                    foreach (var programId in registration.ProgramIds)
+                    {
+                        _checkboxSelections.Add(new CheckboxSelection()
+                        {
+                            ProgramId = programId,
+                            RegistrationId = registration.Id,
+                            IsSelected = true
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task ValidSubmitAsync()
+    {
+        if (_registrations.RegistrationList?.Any() == true)
+        {
+            foreach (var registration in _registrations.RegistrationList)
+            {
+                registration.ProgramIds = _checkboxSelections
+                    .Where(r => r.RegistrationId.Equals(registration.Id) && r.IsSelected)
+                    .Select(r => r.ProgramId);
+            }
+        }
+
+        await httpClient.PostAsJsonAsync($"/api/UpdateRegistrations", _registrations);
+        NavigationManager.NavigateTo("/match/registrations");
+    }
+
+    private class CheckboxSelection
+    {
+        public string ProgramId { get; set; }
+        public string RegistrationId { get; set; }
+        public bool IsSelected { get; set; }
     }
 }

@@ -12,4 +12,14 @@ public class Registrations
     public string Club { get; set; }
 
     public IEnumerable<Registration> RegistrationList { get; set; }
+
+    public void CleanRegistrationList()
+    {
+        if (RegistrationList?.Any() == true)
+        {
+            RegistrationList = RegistrationList
+                .Where(r => !string.IsNullOrEmpty(r.Firstname) && !string.IsNullOrEmpty(r.Lastname))
+                .OrderBy(r => r.Firstname).ThenBy(r => r.Lastname);
+        }
+    }
 }

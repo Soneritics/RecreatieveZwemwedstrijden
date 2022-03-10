@@ -13,7 +13,7 @@ public class Registration
     public string Lastname { get; set; }
 
     [Required]
-    public int YearOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
 
     public IEnumerable<string> ProgramIds { get; set; }
 }

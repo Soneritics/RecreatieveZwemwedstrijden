@@ -19,7 +19,7 @@ else
     <div class="row">
         @foreach (var registrations in _registrations.OrderBy(r => r.Club))
         {
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <h3>@registrations.Club</h3>
                 
                 @if (registrations.RegistrationList?.Any() != true)
@@ -32,24 +32,29 @@ else
 
                     <table class="table">
                         <thead>
-                            <tr>
-                                @if (programCount > 0)
-                                {
+                            @if (programCount > 0)
+                            {
+                                <tr>
+                                    <th rowspan="2">Voornaam</th>
+                                    <th rowspan="2">Achternaam</th>
+                                    <th rowspan="2">Geboortedatum</th>
                                     <th colspan="@programCount">Programma</th>
-                                }
-                            </tr>
-                            <tr>
-                                <th rowspan="2">Voornaam</th>
-                                <th rowspan="2">Achternaam</th>
-                                <th rowspan="2">Geboortejaar</th>
-                                @if (programCount > 0)
-                                {
+                                </tr>
+                                <tr>
                                     @for (var i = 1; i <= programCount; i++)
                                     {
                                         <th>@i</th>
                                     }
-                                }
-                            </tr>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <th>Voornaam</th>
+                                    <th>Achternaam</th>
+                                    <th>Geboortedatum</th>
+                                </tr>
+                            }
                         </thead>
                         <tbody>
                             @foreach (var registration in registrations.RegistrationList.OrderBy(r => r.Firstname))
@@ -57,7 +62,8 @@ else
                                 <tr>
                                     <td>@registration.Firstname</td>
                                     <td>@registration.Lastname</td>
-                                    <td>@registration.YearOfBirth</td>
+                                    <td>@registration.DateOfBirth.ToShortDateString() (x jaar)
+                                    </td>
                                     @if (programCount > 0)
                                     {
                                         @foreach (var program in _match.Programs.OrderBy(p => p.Order))
