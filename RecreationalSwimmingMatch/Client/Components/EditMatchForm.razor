@@ -100,7 +100,7 @@
                                 <InputSelect class="form-control" @bind-Value="Model.Warmup.Hour">
                                     @for (var i = 0; i <= 23; i++)
                                     {
-                                        <option value="@i">@i</option>
+                                        <option value="@i">@i.ToString("D2")</option>
                                     }
                                 </InputSelect>
                             </div>
@@ -109,7 +109,7 @@
                                 <InputSelect class="form-control" @bind-Value="Model.Warmup.Minute">
                                     @for (var i = 0; i <= 59; i++)
                                     {
-                                        <option value="@i">@i</option>
+                                        <option value="@i">@i.ToString("D2")</option>
                                     }
                                 </InputSelect>
                             </div>
@@ -117,7 +117,7 @@
                     }
                     else
                     {
-                        <span>@Model.Warmup.Hour</span><span>:</span><span>@Model.Warmup.Minute</span>
+                        <span>@Model.Warmup.Hour.ToString("D2")</span><span>:</span><span>@Model.Warmup.Minute.ToString("D2")</span>
                     }
                 </div>
             </div>
@@ -132,7 +132,7 @@
                                 <InputSelect class="form-control" @bind-Value="Model.Start.Hour">
                                     @for (var i = 0; i <= 23; i++)
                                     {
-                                        <option value="@i">@i</option>
+                                        <option value="@i">@i.ToString("D2")</option>
                                     }
                                 </InputSelect>
                             </div>
@@ -141,7 +141,7 @@
                                 <InputSelect class="form-control" @bind-Value="Model.Start.Minute">
                                     @for (var i = 0; i <= 59; i++)
                                     {
-                                        <option value="@i">@i</option>
+                                        <option value="@i">@i.ToString("D2")</option>
                                     }
                                 </InputSelect>
                             </div>
@@ -149,7 +149,7 @@
                     }
                     else
                     {
-                        <span>@Model.Start.Hour</span><span>:</span><span>@Model.Start.Minute</span>
+                        <span>@Model.Start.Hour.ToString("D2")</span><span>:</span><span>@Model.Start.Minute.ToString("D2")</span>
                     }
                 </div>
             </div>
@@ -204,7 +204,8 @@
                                     list.Add(new Program()
                                     {
                                         Id = Guid.NewGuid().ToString(),
-                                        Distance = 25
+                                        Distance = 25,
+                                        Order = list.Count
                                     });
                                 }
 

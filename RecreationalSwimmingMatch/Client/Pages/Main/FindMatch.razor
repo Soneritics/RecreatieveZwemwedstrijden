@@ -4,12 +4,9 @@
 @using System.ComponentModel.DataAnnotations
 
 <PageTitle>Wedstrijd openen</PageTitle>
-
 <h1>Wedstrijd openen</h1>
-<p>
-    blablabla.
-    nog meer bla.
-</p>
+<p>Hier kan een eerder aangemaakte wedstrijd geopend worden.</p>
+<p>Vul hiervoor in het onderstande formulier het ID in van de eerder gemaakte wedstrijd.</p>
 
 <EditForm Model="@_matchIdModel" OnValidSubmit="@OpenMatch">
     <DataAnnotationsValidator />
@@ -17,11 +14,21 @@
     
     @if (_errorMessageVisible)
     {
-        <div class="validation-message">Deze wedstrijd is niet gevonden.</div>
+        <div class="validation-message">Er is geen wedstrijd gevonden met dit ID.</div>
     }
 
-    <InputText id="matchId" @bind-Value="_matchIdModel.MatchId" />
-    <button class="btn btn-primary" type="submit">Submit</button>
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-auto"><label class="col-form-label">Wedstrijd ID:</label></div>
+                <div class="col">
+                    <InputText id="matchId" class="form-control" @bind-Value="_matchIdModel.MatchId" />
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <p><button class="btn btn-primary" type="submit">Wedstrijd openen &raquo;</button></p>
 </EditForm>
 
 @code {

@@ -4,10 +4,13 @@
 @inject HttpClient httpClient
 
 <PageTitle>Wedstrijd toevoegen</PageTitle>
-
 <h1>Wedstrijd toevoegen</h1>
 
-<p>blabla.</p>
+<p>Met onderstaand formulier kan een wedstrijd aangemaakt worden.</p>
+<p>
+    Wanneer de wedstrijd is aangemaakt wordt een uniek ID gegenereerd.
+    Met dit ID kan vervolgens de inschrijving afgerond worden, en het programma gedownload.
+</p>
 
 <EditMatchForm OnValidSubmitCallback="@AddMatchAsync" ShowProgramData="true"></EditMatchForm>
 
