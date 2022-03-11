@@ -53,7 +53,6 @@ public class StorageRepository : IRepository
         await blobClient.UploadAsync(
             await new StringContent(document).ReadAsStreamAsync(),
             true);
-
     }
 
     public async Task<T> GetAsync<T>(string id)

@@ -67,9 +67,9 @@ else
                                             <td>@registration.Lastname</td>
                                             <td>
                                                 @{
-                                                    var now = decimal.Parse(DateTime.Now.ToString("yyyyMMdd"));
-                                                    var dob = decimal.Parse(registration.DateOfBirth.ToString("yyyyMMdd"));
-                                                    var age = (now - dob) / 10000;
+                                                    long elapsedTicks = DateTime.Now.Ticks - registration.DateOfBirth.Ticks;
+                                                    var elapsedSpan = new TimeSpan(elapsedTicks);
+                                                    var age = elapsedSpan.Days / 365.25;
                                                 }
                                                 @registration.DateOfBirth.ToShortDateString()
                                                 (@age.ToString("0.0") jaar)
