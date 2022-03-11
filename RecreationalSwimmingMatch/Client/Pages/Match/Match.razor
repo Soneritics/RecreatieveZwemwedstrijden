@@ -3,23 +3,63 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>Wedstrijdoverzicht</PageTitle>
-
 <h1>Wedstrijdoverzicht</h1>
 
-<p>match index</p>
+<p>
+    Op deze pagina is het complete wedstrijdoverzicht terug te vinden.
+    Deze kan hier tevens aangepast worden.
+</p>
 
-<p>Wedstrijd ID: @Layout.MatchId</p>
+<p>
+    Ook is hier het <em>Wedstrijd ID</em> te vinden, waarmee de wedstrijd
+    op een later moment weer te openen (en bewerken) is.
+</p>
 
-@if (_model != default)
-{
-    <EditMatchForm CanEdit="false" Model="@_model" ShowProgramData="true"></EditMatchForm>
+<div class="row mt-4">
+    <div class="col-md-8">
+        @if (_model == default)
+        {
+            <p><em>Bezig met laden van de wedstrijdgegevens..</em></p>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header">Wedstrijd-details</div>
+                <div class="card-body">
+                    <EditMatchForm CanEdit="false" Model="@_model" ShowProgramData="true"></EditMatchForm>
+                    <p class="mb-0 mt-4"><a class="btn btn-primary" href="/match/edit">Wedstrijdgegevens aanpassen &raquo;</a></p>
+                </div>
+            </div>
+        }
+    </div>
 
-    <p><a href="/match/edit">Wedstrijdgegevens aanpassen</a></p>
-}
-else
-{
-    <div>Bezig met laden..</div>
-}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Wedstrijd ID</div>
+            <div class="card-body">
+                <p>
+                    Hieronder vind je het <em>Wedstrijd ID</em>.
+                    Deze is nodig om deze wedstrijd de volgende keer mee aan te kunnen passen.
+                </p>
+                <p><strong>Zorg ervoor dat je dit ID goed bewaart!</strong></p>
+                <p>Klik op het icoontje (<i class="oi oi-clipboard"></i>) om het wedstrijd ID te kopi&euml;ren.</p>
+
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="input-group mb-2">
+                            <div class="input-group-prepend">
+                                <button id="match-id-copy-button" class="input-group-text" onclick="document.getElementById('match-id-text').select();document.execCommand('copy');alert('Het wedstrijd ID is gekopieerd.');">
+                                    <i class="oi oi-clipboard" style="line-height: inherit;"></i>
+                                </button>
+                            </div>
+                            <input type="text" class="form-control" id="match-id-text" onclick="select();" value="@Layout.MatchId" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
     [CascadingParameter]
