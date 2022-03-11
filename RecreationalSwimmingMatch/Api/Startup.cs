@@ -1,4 +1,5 @@
-﻿using Api.Repositories;
+﻿using System;
+using Api.Repositories;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +12,17 @@ internal class Startup : FunctionsStartup
     public override void Configure(IFunctionsHostBuilder builder)
     {
         builder.Services.AddHttpClient();
-        builder.Services.AddSingleton<IRepository, InMemoryRepository>();
+
+        switch (Environment.GetEnvironmentVariable("Repository")?.ToLowerInvariant() ?? string.Empty)
+        {
+            case "storage":
+                builder.Services.AddSingleton<IRepository>(sp =>
+                    new StorageRepository(Environment.GetEnvironmentVariable("AzureWebJobsStorage")));
+                break;
+
+            default:
+                builder.Services.AddSingleton<IRepository, InMemoryRepository>();
+                break;
+        }
     }
 }
