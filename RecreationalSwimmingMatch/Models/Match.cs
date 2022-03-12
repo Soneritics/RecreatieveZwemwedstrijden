@@ -24,6 +24,9 @@ public class Match
     [Required]
     public string PoolAddress { get; set; }
 
+    [Required]
+    public int SwimmingLanes { get; set; } = 5;
+
     public int BreakAfterProgram { get; set; }
 
     public IEnumerable<Program> Programs { get; set; }
