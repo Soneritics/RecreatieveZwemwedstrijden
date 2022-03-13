@@ -6,6 +6,8 @@ public class Match
 {
     public string Id { get; set; }
 
+    public DateTime LastSaved { get; set; }
+
     [Required]
     public Date Date { get; set; }
 

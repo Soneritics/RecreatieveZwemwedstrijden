@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using Api.Repositories;
@@ -35,6 +36,7 @@ public class UpdateMatch
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         var match = JsonConvert.DeserializeObject<global::Models.Match>(await req.ReadAsStringAsync());
+        match.LastSaved = DateTime.Now;
         match.CleanPrograms();
         await _repository.UpdateAsync(match.Id, match);
 

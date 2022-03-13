@@ -1,1 +1,43 @@
-﻿
+﻿@media print {
+    @page {
+        size: A4;
+    }
+
+    *,
+    *::before,
+    *::after {
+        text-shadow: none !important;
+        box-shadow: none !important;
+    }
+
+    a:not(.btn) {
+        text-decoration: underline;
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+
+    .container {
+        min-width: 992px !important;
+    }
+
+    article {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    a.btn,
+    .sidebar,
+    .top-row,
+    .no-print {
+        display: none;
+    }
+}
+

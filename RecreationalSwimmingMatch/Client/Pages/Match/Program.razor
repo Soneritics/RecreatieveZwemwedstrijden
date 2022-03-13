@@ -1,20 +1,117 @@
-﻿@page "/match/program"
+﻿
+@page "/match/program/{MatchId?}"
+@inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
 <PageTitle>Wedstrijdprogramma</PageTitle>
 <h1>Wedstrijdprogramma</h1>
 
-<p>Downloadinstructies..</p>
+@if (_generatedProgramIsValid == default && _generatedProgramExists == default)
+{
+    <p>Bezig met het laden van de wedstrijdgegevens...</p>
+}
+else if (_generatedProgramIsValid == false || _generatedProgramExists == false)
+{
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">Nieuw wedstrijdprogramma genereren</div>
+                <div class="card-body">
+                    @if (_generatedProgramIsValid == false)
+                    {
+                        <p>
+                            Er is eerder een wedstrijdprogramma aangemaakt,
+                            echter is deze niet geldig meer.
+                            De wedstrijdgegevens zijn namelijk aangepast.
+                            Mogelijk ook de inschrijvingen.
+                        </p>
+
+                        <p>Om deze reden moet er een nieuw wedstrijdprogramma aangemaakt worden.</p>
+                    }
+                    else
+                    {
+                        <p>
+                            Met onderstaande knop kan het wedstrijdprogramma aangemaakt worden.
+                        </p>
+
+                        <p>
+                            <strong>Let op!</strong><br/>
+                            Wanneer je na het aanmaken van een wedstrijdprogramma de westrijdgegevens
+                            en/of -inschrijvingen wijzigt, moet het wedstrijdprogramma opnieuw gegenereerd
+                            worden. Maak dus alleen een wedstrijdprogramma wanneer de inschrijvingen
+                            compleet zijn.
+                        </p>
+                    }
+
+                    @if (_programIsBeingCreated)
+                    {
+                        <p><em>Bezig met genereren wedstrijdprogramma..</em></p>
+                    }
+                    else
+                    {
+                        <p class="mb-0 mt-4"><button class="btn btn-primary" @onclick="CreateProgramAsync">Wedstrijdprogramma aanmaken &raquo;</button></p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>Hier moet dan het gegenereerde programma komen.</p>
+}
 
 @code {
     [CascadingParameter]
     public SharedLayout Layout { get; set; }
 
+    [Parameter]
+    public string? MatchId { get; set; }
+
+    private Models.Match? _match;
+    private Models.GeneratedMatchProgram? _generatedMatchProgram;
+
+    private bool? _generatedProgramExists;
+
+    private bool? _generatedProgramIsValid;
+
+    private bool _programIsBeingCreated;
+
     protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrEmpty(Layout?.MatchId))
+        if (!string.IsNullOrEmpty(MatchId))
+        {
+            Layout.MatchId = MatchId;
+        }
+
+        var redirect =
+            string.IsNullOrEmpty(Layout?.MatchId) ||
+            (await httpClient.GetStringAsync($"/api/matchExists?matchId={Layout.MatchId}")).Equals("0");
+
+        if (redirect)
         {
             NavigationManager.NavigateTo("/");
+            return;
         }
+
+        _match = await httpClient.GetFromJsonAsync<Models.Match>($"/api/GetMatchDetails?matchId={Layout.MatchId}");
+        _generatedProgramExists = (await httpClient.GetStringAsync($"/api/GeneratedMatchProgramExists?matchId={Layout.MatchId}")).Equals("1");
+
+        if (_generatedProgramExists == true)
+        {
+            _generatedMatchProgram = await httpClient.GetFromJsonAsync<Models.GeneratedMatchProgram>($"/api/GetGeneratedMatchProgram?matchId={Layout.MatchId}");
+
+            if (_generatedMatchProgram?.GenerateDateTime < _match?.LastSaved)
+            {
+                _generatedProgramIsValid = false;
+            }
+        }
+    }
+
+    protected async Task CreateProgramAsync()
+    {
+        _programIsBeingCreated = true;
+        await httpClient.PostAsync($"/api/GenerateMatchProgram?matchId={Layout.MatchId}", null);
+        NavigationManager.NavigateTo($"/match/program/{Layout.MatchId}", true);
     }
 }

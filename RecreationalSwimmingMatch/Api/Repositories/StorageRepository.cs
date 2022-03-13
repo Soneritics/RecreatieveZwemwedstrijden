@@ -60,6 +60,12 @@ public class StorageRepository : IRepository
         return await GetFromBlobNameAsync<T>(GetFilename<T>(id));
     }
 
+    public async Task DeleteAsync<T>(string id)
+    {
+        var blobClient = _containerClient.GetBlobClient(GetFilename<T>(id));
+        await blobClient.DeleteAsync();
+    }
+
     public async Task<List<T>> GetListAsync<T>(Func<T, bool> predicate)
     {
         var completeList = new List<T>();
@@ -106,6 +112,11 @@ public class StorageRepository : IRepository
                 case nameof(Registrations):
                     var registrations = (Registrations) document;
                     result = $"{result}/{registrations.Id}";
+                    break;
+
+                case nameof(GeneratedMatchProgram):
+                    var generatedMatchProgram = (GeneratedMatchProgram) document;
+                    result = $"{result}/{generatedMatchProgram.Id}";
                     break;
 
                 default:

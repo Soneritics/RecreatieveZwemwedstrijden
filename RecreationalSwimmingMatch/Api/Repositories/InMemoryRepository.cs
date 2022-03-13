@@ -40,6 +40,11 @@ public class InMemoryRepository : IRepository
         return (T)_entities[id];
     }
 
+    public async Task DeleteAsync<T>(string id)
+    {
+        _entities.Remove(id);
+    }
+
     public async Task<List<T>> GetListAsync<T>(Func<T, bool> predicate)
     {
         return _entities
