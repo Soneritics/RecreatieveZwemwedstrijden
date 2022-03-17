@@ -21,6 +21,11 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Components\AddClubForm.razor" />
+    <_ContentIncludedByDefault Remove="Components\GeneratedProgramView.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\GeneratedProgramView.razor" />
   </ItemGroup>
 
 </Project>

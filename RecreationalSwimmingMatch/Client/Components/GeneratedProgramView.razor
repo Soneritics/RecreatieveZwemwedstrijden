@@ -1,0 +1,14 @@
+﻿@using Models
+
+<h3>GeneratedProgramView</h3>
+
+@code {
+    [Parameter]
+    public Match Match { get; set; }
+    
+    [Parameter]
+    public GeneratedMatchProgram GeneratedMatchProgram { get; set; }
+
+    [Parameter]
+    public IEnumerable<Registrations> Registrations { get; set; }
+}

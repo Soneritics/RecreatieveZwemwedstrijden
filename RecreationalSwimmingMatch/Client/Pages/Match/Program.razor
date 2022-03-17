@@ -58,7 +58,7 @@ else if (_generatedProgramIsValid == false || _generatedProgramExists == false)
 }
 else
 {
-    <p>Hier moet dan het gegenereerde programma komen.</p>
+    <GeneratedProgramView Match="_match" Registrations="_registrations" GeneratedMatchProgram="_generatedMatchProgram"></GeneratedProgramView>
 }
 
 @code {
@@ -70,6 +70,7 @@ else
 
     private Models.Match? _match;
     private Models.GeneratedMatchProgram? _generatedMatchProgram;
+    private IEnumerable<Models.Registrations> _registrations;
 
     private bool? _generatedProgramExists;
 
@@ -104,6 +105,14 @@ else
             if (_generatedMatchProgram?.GenerateDateTime < _match?.LastSaved)
             {
                 _generatedProgramIsValid = false;
+            }
+            else
+            {
+                _registrations = await httpClient
+                    .GetFromJsonAsync<IEnumerable<Models.Registrations>>($"/api/GetMatchRegistrations?matchId={Layout.MatchId}")
+                    ?? new List<Models.Registrations>();
+
+                _generatedProgramIsValid = true;
             }
         }
     }

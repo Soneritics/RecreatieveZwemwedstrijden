@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Api.Generator;
 using Api.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -54,13 +55,18 @@ public class GenerateMatchProgram
             }
         }
 
+        // Then fetch the necessary data
+        var match = await _repository.GetAsync<global::Models.Match>(matchId);
+        var registrations = await _repository
+            .GetListAsync<global::Models.Registrations>(r => r.MatchId.Equals(matchId));
+
         // Then create a new one
-        var generatedMatchProgram = new global::Models.GeneratedMatchProgram()
-        {
-            Id = Guid.NewGuid().ToString(),
-            MatchId = matchId,
-            GenerateDateTime = DateTime.Now
-        };
+        var generatedMatchProgramGenerator = new MatchProgramGenerator(
+            match,
+            registrations);
+
+        var generatedMatchProgram = generatedMatchProgramGenerator.Generate();
+
         await _repository.InsertAsync(generatedMatchProgram.Id, generatedMatchProgram);
 
         // Return the id of the newly created program
