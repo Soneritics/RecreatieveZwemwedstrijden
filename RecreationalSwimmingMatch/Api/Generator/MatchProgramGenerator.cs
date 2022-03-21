@@ -33,6 +33,7 @@ public class MatchProgramGenerator
                 ProgramId = program.Id,
                 NrOfSwimmersPerSeries = new Dictionary<int, int>(),
                 SwimmersOrdered = _registrations
+                    .Where(r => r.RegistrationList?.Any() == true)
                     .SelectMany(r => r.RegistrationList)
                     .Where(r => r.ProgramIds.Contains(program.Id))
                     .OrderBy(r => r.DateOfBirth)

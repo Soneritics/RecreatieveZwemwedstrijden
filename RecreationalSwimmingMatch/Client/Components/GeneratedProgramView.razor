@@ -1,6 +1,96 @@
 ﻿@using Models
 
-<h3>GeneratedProgramView</h3>
+<!-- Printing notifiation -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="alert alert-info mb-3 no-print" role="alert">
+            <div class="row">
+                <div class="col-10">
+                    <p class="pt-2 mb-0">
+                        <strong>Rapport exporteren naar PDF</strong><br>
+                    </p><ol class="my-0">
+                        <li>Ga in de browser naar het printscherm (CTRL+P) of druk op de printknop rechts.</li>
+                        <li>Kies vervolgens bij bestemming voor <em><i class="oi oi-document"></i> Opslaan als PDF</em>.</li>
+                        <li>Druk vervolgens op de printknop om het rapport als PDF te downloaden.</li>
+                    </ol>
+                    <p></p>
+                </div>
+
+                <div class="col-2 text-center">
+                    <button class="btn btn-lg btn-outline-primary mt-4" onclick="window.print();"><i class="oi oi-print"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Printing notifiation -->
+
+<!-- Front page -->
+<div class="print-break-after">
+    <p class="mt-5 text-center">
+        <img src="https://www.zvw74.nl/u/Site/zwemvereniging-westervoort-logo.png" style="max-width: 80%; max-height: 150px; width: 100%" />
+    </p>
+    
+    <h1 class="text-center mt-5 mb-5">@Match.Name</h1>
+    
+    <div class="row">
+        <div class="col-4">
+            <table class="table no-span-margin table-sm">
+                <thead>
+                    <tr>
+                        <th colspan="2">@Match.PoolName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Organisatie:</td>
+                        <td>@Match.Organiser</td>
+                    </tr>
+                    <tr>
+                        <td>Inzwemmen:</td>
+                        <td><span>@Match.Warmup.Hour.ToString("D2")</span><span>:</span><span>@Match.Warmup.Minute.ToString("D2")</span></td>
+                    </tr>
+                    <tr>
+                        <td nowrap>Start wedstrijd:</td>
+                        <td><span>@Match.Start.Hour.ToString("D2")</span><span>:</span><span>@Match.Start.Minute.ToString("D2")</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p class="mt-4 mb-0"><strong>Deelnemers:</strong></p>
+            @foreach (var reg in Registrations.OrderBy(c => c.Club))
+            {
+                @reg.Club<br />
+            }
+        </div>
+        <div class="col-8">
+            <table class="table no-span-margin table-sm">
+                <thead>
+                    <tr>
+                        <th class="text-center">Programma</th>
+                        <th class="text-right">Afstand</th>
+                        <th>Slag</th>
+                        <th>Opmerkingen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var program in Match.Programs)
+                    {
+                        <tr>
+                            <td class="text-center">@program.Order</td>
+                            <td class="text-right">@program.Distance<span>m</span></td>
+                            <td>@program.Stroke</td>
+                            <td>@program.Comments</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Front page -->
+
+<p>Wedstrijdprogramma hierzo</p>
 
 @code {
     [Parameter]

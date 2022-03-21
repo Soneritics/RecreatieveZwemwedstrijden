@@ -39,5 +39,13 @@
     .no-print {
         display: none;
     }
+
+    .print-break-after {
+        page-break-after: always;
+    }
 }
 
+.no-span-margin span {
+    margin: 0;
+    padding: 0;
+}
