@@ -1,0 +1,136 @@
+﻿
+@page "/match/program/edit/{MatchId?}"
+@inject HttpClient httpClient
+@inject NavigationManager NavigationManager
+
+<PageTitle>@_match?.Name aanpassen</PageTitle>
+
+<h1>Wedstrijdprogramma aanpassen</h1>
+
+@if (_match == default || _generatedMatchProgram == default || _registrations == default)
+{
+    <p><em>Bezig met het laden van de wedstrijdgegevens..</em></p>
+}
+else
+{
+    <p>
+        Op deze pagina kan de volgorde van de zwemmers worden aangepast.
+        Standaard worden de zwemmers gesorteerd op hun geboortedatum, waarbij
+        de oudste zwemmer door het systeem als snelste wordt gezien.
+    </p>
+
+    <p><em>Uitsluitend de programmanummers met ingeschreven zwemmers worden getoond.</em></p>
+
+    <div class="row">
+        @foreach (var program in _generatedMatchProgram.GeneratedPrograms)
+        {
+            var matchProgram = _match.Programs.Single(p => p.Id.Equals(program.ProgramId));
+
+            if (program.SwimmersOrdered?.Any() == true)
+            {
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            Programma @matchProgram.Order<span>:</span>
+                            @matchProgram.Distance<span>m</span> @matchProgram.Stroke
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                @{ var i = 0; }
+                                @foreach (var swimmerId in program.SwimmersOrdered)
+                                {
+                                    i++;
+                                    var swimmer = _registrations
+                                        .Where(r => r.RegistrationList?.Any() == true)
+                                        .SelectMany(r => r.RegistrationList)
+                                        .FirstOrDefault(r => r.Id.Equals(swimmerId));
+
+                                    var clubName = _registrations
+                                        .FirstOrDefault(r => r.RegistrationList?.Any(r => r.Id.Equals(swimmerId)) == true)?
+                                        .Club ?? string.Empty;
+
+                                    <tr>
+                                        <td width="40">
+                                            @if (i > 1)
+                                            {
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <span class="oi oi-data-transfer-upload" @onclick="() => Swap(program.SwimmersOrdered, swimmerId, true)"></span>
+                                                </button>
+                                            }
+                                        </td>
+                                        <td width="55">
+                                            @if (i < program.SwimmersOrdered.Count)
+                                            {
+                                                <button class="btn btn-sm btn-outline-primary" @onclick="() => Swap(program.SwimmersOrdered, swimmerId, false)">
+                                                    <span class="oi oi-data-transfer-download"></span>
+                                                </button>
+                                            }
+                                        </td>
+                                        <td>@swimmer?.Firstname @swimmer?.Lastname</td>
+                                        <td>@swimmer?.DateOfBirth.ToShortDateString()</td>
+                                        <td>@clubName</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <p class="no-print text-center mt-4 mb-4">
+        <button class="btn btn-primary btn-lg" @onclick="UpdateMatchAsync">Wijzigingen opslaan &raquo;</button>
+    </p>
+}
+
+@code {
+    [CascadingParameter]
+    public SharedLayout Layout { get; set; }
+
+    [Parameter]
+    public string? MatchId { get; set; }
+
+    private Models.Match? _match;
+    private Models.GeneratedMatchProgram? _generatedMatchProgram;
+    private IEnumerable<Models.Registrations>? _registrations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(MatchId))
+        {
+            Layout.MatchId = MatchId;
+        }
+
+        var redirect =
+            string.IsNullOrEmpty(Layout?.MatchId) ||
+            (await httpClient.GetStringAsync($"/api/matchExists?matchId={Layout.MatchId}")).Equals("0");
+
+        if (redirect)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        _match = await httpClient.GetFromJsonAsync<Models.Match>($"/api/GetMatchDetails?matchId={Layout.MatchId}");
+        _generatedMatchProgram = await httpClient.GetFromJsonAsync<Models.GeneratedMatchProgram>($"/api/GetGeneratedMatchProgram?matchId={Layout.MatchId}");
+        _registrations = await httpClient
+            .GetFromJsonAsync<IEnumerable<Models.Registrations>>($"/api/GetMatchRegistrations?matchId={Layout.MatchId}")
+            ?? new List<Models.Registrations>();
+    }
+
+    protected void Swap(List<string> swimmersList, string swimmerId, bool up)
+    {
+        var index = swimmersList.FindIndex(s => s.Equals(swimmerId));
+        var swapWith = up ? index - 1 : index + 1;
+
+        swimmersList[index] = swimmersList[swapWith];
+        swimmersList[swapWith] = swimmerId;
+    }
+
+    private async Task UpdateMatchAsync()
+    {
+        await httpClient.PostAsJsonAsync("/api/UpdateGeneratedMatchProgram", _generatedMatchProgram);
+        NavigationManager.NavigateTo($"/match/program/{Layout.MatchId}");
+    }
+}

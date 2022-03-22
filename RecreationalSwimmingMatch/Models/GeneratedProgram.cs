@@ -19,22 +19,26 @@ public class GeneratedProgram
         // Get the swimmers as a list
         var swimmers = SwimmersOrdered.ToList();
 
-        // Loop the series and place the swimmers
+        // Create all the necessary objects in the correct order
         foreach (var series in NrOfSwimmersPerSeries)
+        {
+            result[series.Key] = new Dictionary<int, string>();
+        }
+
+        // Loop the series and place the swimmers
+        foreach (var series in NrOfSwimmersPerSeries.OrderByDescending(x => x.Key))
         {
             var seriesNumber = series.Key;
             var swimmersInSeries = series.Value;
 
-            result[seriesNumber] = new Dictionary<int, string>();
-
             for (var i = 0; i < swimmersInSeries; i++)
             {
                 var lane = laneOrder[i];
-                var swimmerId = swimmers.Last();
+                var swimmerId = swimmers.First();
 
                 result[series.Key][lane] = swimmerId;
 
-                swimmers.RemoveAt(swimmers.Count - 1);
+                swimmers.RemoveAt(0);
             }
         }
 
