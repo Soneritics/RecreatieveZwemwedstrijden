@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using Api.Repositories;
@@ -33,10 +34,18 @@ public class UpdateRegistrations
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
+        // Update the registrations
         var registrations = JsonConvert.DeserializeObject<global::Models.Registrations>(await req.ReadAsStringAsync());
         registrations.CleanRegistrationList();
         await _repository.UpdateAsync(registrations.Id, registrations);
 
+        // Update the match change date, so a new program will be forced to create
+        var match = await _repository.GetAsync<global::Models.Match>(registrations.MatchId);
+        match.LastSaved = DateTime.Now;
+        match.CleanPrograms();
+        await _repository.UpdateAsync(match.Id, match);
+
+        // Return the saved registrations
         return new JsonResult(registrations);
     }
 }

@@ -54,6 +54,22 @@ public class MatchProgramGenerator
                 generatedProgram.NrOfSwimmersPerSeries[i] = swimmersInLane;
             }
 
+            for (var i = 1; i < nrOfSeries; i++)
+            {
+                var seriesAreUneven = generatedProgram.NrOfSwimmersPerSeries[i] <= generatedProgram.NrOfSwimmersPerSeries[i + 1] - 2;
+                if (seriesAreUneven)
+                {
+                    while (seriesAreUneven)
+                    {
+                        generatedProgram.NrOfSwimmersPerSeries[i]++;
+                        generatedProgram.NrOfSwimmersPerSeries[i + 1]--;
+
+                        seriesAreUneven = generatedProgram.NrOfSwimmersPerSeries[i] <=
+                            generatedProgram.NrOfSwimmersPerSeries[i + 1] - 2;
+                    }
+                }
+            }
+
             generatedMatchProgram.GeneratedPrograms.Add(generatedProgram);
         }
 
