@@ -3,7 +3,7 @@
 @inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
-<PageTitle>Wedstrijdprogramma</PageTitle>
+<PageTitle>@_match?.Name</PageTitle>
 <h1 class="no-print">Wedstrijdprogramma</h1>
 
 @if (_generatedProgramIsValid == default && _generatedProgramExists == default)

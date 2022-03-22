@@ -48,6 +48,9 @@ public class MatchProgramGenerator
                     ? generatedProgram.SwimmersOrdered.Count % _match.SwimmingLanes
                     : _match.SwimmingLanes;
 
+                if (swimmersInLane == 0)
+                    swimmersInLane = _match.SwimmingLanes;
+
                 generatedProgram.NrOfSwimmersPerSeries[i] = swimmersInLane;
             }
 

@@ -1,6 +1,6 @@
 ﻿@using Models
 
-<!-- Printing notifiation -->
+<!-- Printing notification -->
 <div class="row">
     <div class="col-lg-6">
         <div class="alert alert-info mb-3 no-print" role="alert">
@@ -23,7 +23,7 @@
         </div>
     </div>
 </div>
-<!-- Printing notifiation -->
+<!-- Printing notification -->
 
 <!-- Front page -->
 <div class="print-break-after">
@@ -90,7 +90,93 @@
 </div>
 <!-- Front page -->
 
-<p>Wedstrijdprogramma hierzo</p>
+<!-- Non printable title -->
+<h2 class="text-center mt-5 mb-5 no-print">Wedstrijdprogramma</h2>
+<!-- Non printable title -->
+
+<!-- Main program loop -->
+@foreach (var program in GeneratedMatchProgram.GeneratedPrograms)
+{
+    var matchProgram = Match.Programs.Single(p => p.Id.Equals(program.ProgramId));
+
+    <div class="avoid-break-inside">
+        <!-- Program information -->
+        <div class="row program-top-row">
+            <div class="col-3">Programma @matchProgram.Order</div>
+            <div class="col-6 text-center">@matchProgram.Distance<span>m</span> @matchProgram.Stroke</div>
+            <div class="col-3 text-right">@matchProgram.Comments</div>
+        </div>
+        <!-- Program information -->
+
+        <!-- Series -->
+        @{
+            var allProgramSeries = program.GetSeries();
+        }
+        @foreach (var series in allProgramSeries)
+        {
+            <table class="table table-sm mt-3 series-table">
+                <thead>
+                <tr>
+                    <th colspan="5">Serie @series.Key van @allProgramSeries.Count</th>
+                    <th class="text-center" nowrap="nowrap">
+                        Min&nbsp;&nbsp;
+                        Sec&nbsp;&nbsp;
+                        0,01
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                @for (var i = 1; i <= Match.SwimmingLanes; i++)
+                {
+                    var swimmerId = @series.Value.ContainsKey(i) ? @series.Value[i] : string.Empty;
+                    var swimmer = Registrations
+                        .Where(r => r.RegistrationList?.Any() == true)
+                        .SelectMany(r => r.RegistrationList)
+                        .FirstOrDefault(r => r.Id.Equals(swimmerId));
+
+                    var clubName = Registrations
+                        .FirstOrDefault(r => r.RegistrationList?.Any(r => r.Id.Equals(swimmerId)) == true)?
+                        .Club
+                        ?? string.Empty;
+
+                    <tr>
+                        <td nowrap="nowrap" width="5%">@i<span>.</span></td>
+                        <td nowrap="nowrap" width="30%">@swimmer?.Firstname @swimmer?.Lastname</td>
+                        <td nowrap="nowrap" width="10%" class="text-right">
+                            @if (swimmer != default)
+                            {
+                                @matchProgram.Distance<span>m</span>
+                            }
+                        </td>
+                        <td nowrap="nowrap" width="15%">
+                            @if (swimmer != default)
+                            {
+                                @matchProgram.Stroke.ToLowerInvariant()
+                            }
+                        </td>
+                        <td width="20%" style="max-width: 80px;" class="cut-off-overflow">@clubName</td>
+                        <td nowrap="nowrap" width="20%">&nbsp;</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        <!-- Series -->
+
+        <!-- Spacer for the end of a program -->
+        <p class="mt-3 mb-3">&nbsp;</p>
+        <!-- Spacer for the end of a program -->
+    </div>
+
+    <!-- Break -->
+    @if (Match.BreakAfterProgram == matchProgram.Order)
+    {
+        <div class="program-break">Pauze</div>
+        <p class="no-print mb-5">&nbsp;</p>
+    }
+    <!-- Break -->
+}
+<!-- Main program loop -->
 
 @code {
     [Parameter]
