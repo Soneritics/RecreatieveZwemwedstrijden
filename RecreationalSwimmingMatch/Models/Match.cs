@@ -11,6 +11,8 @@ public class Match
     [Required]
     public string Name { get; set; }
 
+    public string Logo { get; set; }
+
     [Required]
     public Date Date { get; set; }
 

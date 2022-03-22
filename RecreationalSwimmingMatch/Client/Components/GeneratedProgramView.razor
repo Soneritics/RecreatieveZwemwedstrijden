@@ -28,7 +28,10 @@
 <!-- Front page -->
 <div class="print-break-after">
     <p class="mt-5 text-center">
-        <img src="https://www.zvw74.nl/u/Site/zwemvereniging-westervoort-logo.png" style="max-width: 80%; max-height: 150px; width: 100%" />
+        @if (!string.IsNullOrEmpty(Match.Logo))
+        {
+            <img src="@Match.Logo" style="max-width: 80%; max-height: 150px; width: 100%"/>
+        }
     </p>
     
     <h1 class="text-center mt-5 mb-5">@Match.Name</h1>
