@@ -40,7 +40,7 @@ public class GeneratedMatchProgramExists
         if (!string.IsNullOrEmpty(matchId))
         {
             result = (await _repository
-                .GetListAsync<global::Models.GeneratedMatchProgram>(r => r.MatchId.Equals(matchId)))
+                .GetListAsync<global::Models.GeneratedMatchProgram>(r => r.MatchId?.Equals(matchId) == true))
                 ?.Any() == true;
         }
 

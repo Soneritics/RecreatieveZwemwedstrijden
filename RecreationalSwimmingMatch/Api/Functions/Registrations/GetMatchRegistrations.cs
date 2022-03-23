@@ -34,7 +34,7 @@ public class GetMatchRegistrations
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         string matchId = req.Query["matchId"];
-        var result = await _repository.GetListAsync<global::Models.Registrations>(r => r.MatchId.Equals(matchId));
+        var result = await _repository.GetListAsync<global::Models.Registrations>(r => r.MatchId?.Equals(matchId) == true);
 
         return new JsonResult(result);
     }

@@ -15,6 +15,14 @@ internal class Startup : FunctionsStartup
 
         switch (Environment.GetEnvironmentVariable("Repository")?.ToLowerInvariant() ?? string.Empty)
         {
+            case "cosmos":
+                builder.Services.AddSingleton<IRepository>(sp =>
+                    new CosmosRepository(
+                        Environment.GetEnvironmentVariable("CosmosConnectionString"),
+                        Environment.GetEnvironmentVariable("CosmosDatabase"),
+                        Environment.GetEnvironmentVariable("CosmosContainer")));
+                break;
+
             case "storage":
                 builder.Services.AddSingleton<IRepository>(sp =>
                     new StorageRepository(Environment.GetEnvironmentVariable("AzureWebJobsStorage")));

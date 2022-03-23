@@ -36,7 +36,7 @@ public class GetGeneratedMatchProgram
 
         string matchId = req.Query["matchId"];
         var result = (await _repository
-            .GetListAsync<global::Models.GeneratedMatchProgram>(r => r.MatchId.Equals(matchId)))
+            .GetListAsync<global::Models.GeneratedMatchProgram>(r => r.MatchId?.Equals(matchId) == true))
             ?.Single();
 
         return new JsonResult(result);
