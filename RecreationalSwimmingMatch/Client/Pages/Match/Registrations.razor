@@ -46,7 +46,12 @@ else
                                         <tr>
                                             @for (var i = 1; i <= programCount; i++)
                                             {
-                                                <th>@i</th>
+                                                var program = _match.Programs.FirstOrDefault(p => p.Order.Equals(i));
+                                                var titleTag = program == default
+                                                    ? string.Empty
+                                                    : $"{program.Distance}m {program.Stroke} {program.Comments}";
+                                
+                                                <th title="@titleTag">@i</th>
                                             }
                                         </tr>
                                     }
