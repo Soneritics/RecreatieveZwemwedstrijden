@@ -30,7 +30,7 @@ else
                     @if (programCount > 0)
                     {
                         <tr>
-                            <th rowspan="2">Voornaam</th>
+                            <th rowspan="2" colspan="2">Voornaam</th>
                             <th rowspan="2">Achternaam</th>
                             <th rowspan="2">Geboortedatum</th>
                             <th colspan="@programCount" class="text-center">Programma</th>
@@ -38,14 +38,19 @@ else
                         <tr>
                             @for (var i = 1; i <= programCount; i++)
                             {
-                                <th>@i</th>
+                                var program = _match.Programs.FirstOrDefault(p => p.Order.Equals(i));
+                                var titleTag = program == default
+                                    ? string.Empty
+                                    : $"{program.Distance}m {program.Stroke} {program.Comments}";
+                                
+                                <th title="@titleTag">@i</th>
                             }
                         </tr>
                     }
                     else
                     {
                         <tr>
-                            <th>Voornaam</th>
+                            <th colspan="2">Voornaam</th>
                             <th>Achternaam</th>
                             <th>Geboortedatum</th>
                         </tr>
@@ -71,6 +76,7 @@ else
                 @foreach (var registration in _registrations.RegistrationList)
                 {
                     <tr>
+                        <td><button type="button" @onclick="() => RemoveSwimmerFromList(registration.Id)">X</button></td>
                         <td><InputText class="form-control" @bind-Value="registration.Firstname"/></td>
                         <td><InputText class="form-control" @bind-Value="registration.Lastname"/></td>
                         <td><InputDate class="form-control" @bind-Value="registration.DateOfBirth"/></td>
@@ -93,7 +99,7 @@ else
                                 }
 
                                 var reg = _checkboxSelections.First(r => r.ProgramId.Equals(program.Id) && r.RegistrationId.Equals(registration.Id));
-                                <td><InputCheckbox class="form-check-input" @bind-Value="reg.IsSelected" /></td>
+                                <td><InputCheckbox class="form-check-input" @bind-Value="reg.IsSelected"/></td>
                             }
                         }
                     </tr>
@@ -168,6 +174,18 @@ else
 
         await httpClient.PostAsJsonAsync($"/api/UpdateRegistrations", _registrations);
         NavigationManager.NavigateTo("/match/registrations");
+    }
+    
+    private void RemoveSwimmerFromList(string registrationId)
+    {
+        var list = _registrations.RegistrationList.ToList();
+        
+        var registration = list.FirstOrDefault(x => x.Id.Equals(registrationId));
+        if (registration != default)
+        {
+            list.Remove(registration);
+            _registrations.RegistrationList = list;
+        }
     }
 
     private class CheckboxSelection

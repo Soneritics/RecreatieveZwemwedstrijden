@@ -74,9 +74,8 @@ Daarnaast moeten de volgende instellingen worden gedaan:
 
 
 # Openstaande punten
-* Aantal zwemmers per serie kunnen instellen
+- Aantal zwemmers per serie kunnen instellen
 - Inschrijvingen kopiëren uit eerdere  wedstrijd
-- Verwijderendeelnemers uit inschrijvingen
 - Aanmaken gegenereerd programma geeft een error
 
 # Screenshots
