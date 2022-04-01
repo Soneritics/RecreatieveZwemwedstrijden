@@ -23,7 +23,7 @@ else
             <div class="col-lg-6 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h3>@registrations.Club</h3>
+                        <h3>@registrations.Club (@(registrations.RegistrationList?.Count() ?? 0))</h3>
                 
                         @if (registrations.RegistrationList?.Any() != true)
                         {
