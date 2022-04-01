@@ -85,6 +85,13 @@
                             <td>@program.Stroke</td>
                             <td>@program.Comments</td>
                         </tr>
+
+                        @if (Match.BreakAfterProgram == program.Order)
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center bg-light">PAUZE</td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
