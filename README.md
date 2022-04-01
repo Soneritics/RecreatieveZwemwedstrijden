@@ -77,6 +77,7 @@ Daarnaast moeten de volgende instellingen worden gedaan:
 - Aantal zwemmers per serie kunnen instellen
 - Inschrijvingen kopiëren uit eerdere  wedstrijd
 - Aanmaken gegenereerd programma geeft een error
+- Verwijderen van 'club' bij de registraties
 
 # Screenshots
 Wordt binnenkort aangevuld.
