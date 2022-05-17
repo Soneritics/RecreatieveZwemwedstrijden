@@ -11,7 +11,7 @@ public class GeneratedProgram
     public Dictionary<int, Dictionary<int, string>> GetSeries()
     {
         // Order of the fastest swimmer in the series
-        var laneOrder = new [] { 3, 4, 2, 5, 1, 6 };
+        var laneOrder = new [] { 3, 4, 2, 1, 5, 6 };
 
         // the result is a dictionary of series, lane, swimmer id
         var result = new Dictionary<int, Dictionary<int, string>>();
