@@ -174,7 +174,10 @@
         <!-- Series -->
 
         <!-- Spacer for the end of a program -->
-        <p class="mt-3 mb-3">&nbsp;</p>
+        @if (Match.BreakAfterProgram != matchProgram.Order)
+        {
+            <p class="mt-3 mb-3">&nbsp;</p>
+        }
         <!-- Spacer for the end of a program -->
     </div>
 
